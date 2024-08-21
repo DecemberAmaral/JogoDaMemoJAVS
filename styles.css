@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.memory-game {
+    width: 640px;
+    height: 640px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 10px;
+    margin-top: 40px;
+}
+
+.memory-card {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    transform: scale(1);
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+}
+
+.memory-card.flip {
+    transform: rotateY(180deg);
+}
+
+.front-face, .back-face {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    border-radius: 5px;
+    display: flex; /* Alinhamento flexível */
+    align-items: center; /* Centralização vertical */
+    justify-content: center; /* Centralização horizontal */
+}
+
+.front-face {
+    background: #f0f0f0;
+}
+
+.back-face {
+    background: #333;
+    color: white;
+    font-size: 24px;
+    transform: rotateY(180deg);
+}
+
+.back-face img {
+    max-width: 90%; /* Limitar largura da imagem */
+    max-height: 90%; /* Limitar altura da imagem */
+    object-fit: contain; /* Assegura que a imagem se ajuste corretamente */
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
