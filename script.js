@@ -1,107 +1,83 @@
 const cardsArray = [
     { name: 'besta', img: 'ben10/besta.png' },
-    { name: 'fantasmatico', img: 'ben10/fantasmatico.png' },
-    { name: 'gordoMetalurgico', img: 'ben10/gordoMetalurgico.png' },
-    { name: 'macacoAranha', img: 'ben10/macacoAranha.png' },
-    { name: 'paralelepipedo', img: 'ben10/paralelepipedo.png' },
+    { name: 'fantasmático', img: 'ben10/fantasmatico.png' },
+    { name: 'gordo metalurgico', img: 'ben10/gordoMetalurgico.png' },
+    { name: 'quatro braços', img: 'ben10/quatrobracos.png' },
+    { name: 'paralelepípedo', img: 'ben10/paralelepipedo.png' },
     { name: 'xlr8', img: 'ben10/xlr8.png' }
 ];
 
-let gameGrid = [...cardsArray, ...cardsArray].sort(() => 0.5 - Math.random());
-let firstGuess = '';
-let secondGuess = '';
-let count = 0;
-let previousTarget = null;
-let delay = 1200;
+let gameGrid = cardsArray.concat(cardsArray).sort(() => 0.5 - Math.random());
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false;
 
-const game = document.querySelector('.memory-game');
+function createBoard() {
+    const gameBoard = document.getElementById('game-board');
+    gameGrid.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.classList.add('card');
+        cardElement.dataset.name = card.name;
 
-gameGrid.forEach(item => {
-    const card = document.createElement('div');
-    card.classList.add('memory-card');
-    card.dataset.name = item.name;
+        const cardInner = document.createElement('div');
+        cardInner.classList.add('card-inner');
 
-    const frontFace = document.createElement('div');
-    frontFace.classList.add('front-face');
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card-front');
+        cardFront.innerHTML = '<img src="ben10/omnitrix.png" alt="Omnitrix">';
 
-    const backFace = document.createElement('div');
-    backFace.classList.add('back-face');
-    backFace.style.backgroundImage = `url(${item.img})`;
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card-back');
+        cardBack.style.backgroundImage = `url(${card.img})`;
 
-    game.appendChild(card);
-    card.appendChild(frontFace);
-    card.appendChild(backFace);
-});
+        cardInner.appendChild(cardFront);
+        cardInner.appendChild(cardBack);
+        cardElement.appendChild(cardInner);
 
-function match() {
-    const selected = document.querySelectorAll('.selected');
-    selected.forEach(card => {
-        card.classList.add('match');
+        cardElement.addEventListener('click', flipCard);
+        gameBoard.appendChild(cardElement);
     });
 }
 
-function resetGuesses() {
-    firstGuess = '';
-    secondGuess = '';
-    count = 0;
-    previousTarget = null;
+function flipCard() {
+    if (lockBoard) return;
+    if (this === firstCard) return;
 
-    const selected = document.querySelectorAll('.selected');
-    selected.forEach(card => {
-        card.classList.remove('selected');
-        card.classList.remove('flip');
-    });
-}
+    this.classList.add('flip');
 
-game.addEventListener('click', event => {
-    const clicked = event.target;
-
-    if (
-        clicked.nodeName === 'SECTION' ||
-        clicked === previousTarget ||
-        clicked.parentNode.classList.contains('selected') ||
-        clicked.parentNode.classList.contains('match')
-    ) {
+    if (!firstCard) {
+        firstCard = this;
         return;
     }
 
-    if (count < 2) {
-        count++;
-        if (count === 1) {
-            firstGuess = clicked.parentNode.dataset.name;
-            clicked.parentNode.classList.add('selected');
-            clicked.parentNode.classList.add('flip');
-        } else {
-            secondGuess = clicked.parentNode.dataset.name;
-            clicked.parentNode.classList.add('selected');
-            clicked.parentNode.classList.add('flip');
-            
-            // Verificar se as cartas são iguais
-            if (firstGuess === secondGuess) {
-                setTimeout(() => {
-                    match();
-                    resetGuesses();
-                }, delay);
-            } else {
-                setTimeout(resetGuesses, delay);
-            }
-        }
-        previousTarget = clicked;
-    }
-});
-
-function resetGame() {
-    const cards = document.querySelectorAll('.memory-card');
-    cards.forEach(card => {
-        card.classList.remove('match', 'selected', 'flip');
-    });
-
-    gameGrid = [...cardsArray, ...cardsArray].sort(() => 0.5 - Math.random());
-
-    const backFaces = document.querySelectorAll('.back-face');
-    backFaces.forEach((backFace, index) => {
-        backFace.style.backgroundImage = `url(${gameGrid[index].img})`;
-    });
-
-    resetGuesses();
+    secondCard = this;
+    checkForMatch();
 }
+
+function checkForMatch() {
+    let isMatch = firstCard.dataset.name === secondCard.dataset.name;
+
+    isMatch ? disableCards() : unflipCards();
+}
+
+function disableCards() {
+    firstCard.removeEventListener('click', flipCard);
+    secondCard.removeEventListener('click', flipCard);
+    resetBoard();
+}
+
+function unflipCards() {
+    lockBoard = true;
+
+    setTimeout(() => {
+        firstCard.classList.remove('flip');
+        secondCard.classList.remove('flip');
+        resetBoard();
+    }, 1500);
+}
+
+function resetBoard() {
+    [firstCard, secondCard, lockBoard] = [null, null, false];
+}
+
+createBoard();
